@@ -1,17 +1,16 @@
-# Nexus Media Player — notes for working on this repo
+# Media Player — notes for working on this repo
 
-- The command is `media-player`; everything else (crate, config/data/cache folders,
-  MPRIS name) is `nexus-media-player`.
+- The command, crate, config/data/cache folders and MPRIS name are all `nixe-media-player`.
 
 - GTK4 (gtk4-rs 0.11) + Rust + libmpv (hand-written FFI, `player/mpv.rs`, links
   `libmpv.so.2`). No libadwaita. The window is one flat, monospace surface split by
-  hairlines: a top bar (sidebar toggle, `Media Player / <page>`, search, settings,
-  close), the sidebar, the page, the player bar and a status bar (`F1 Shortcuts` ·
-  library size); fullscreen hides all of it. Pages have no title header. Settings is a
+  hairlines (see `STYLE.md`): the sidebar (its head holds the toggle and search), the
+  page, the player bar and a status bar (`F1 Shortcuts` · library size, equalizer,
+  settings); fullscreen hides all of it. Pages have no title header. Settings is a
   card over the window (`settings_dialog.rs`) listing the settings page's groups;
-  `navigate("settings")` opens it. The equalizer is a card too (`panel_dialog.rs`), from the top bar or `navigate("equalizer")`. Theme, window, widgets,
-  stylesheet, queue, playlists and MPRIS started as copies of Nexus Music
-  (`~/Projects/nexus-music`). Every colour is a `@theme_*` token; `@theme_video` (derived
+  `navigate("settings")` opens it. The equalizer is a card too (`panel_dialog.rs`), from the status bar or `navigate("equalizer")`. Queue, playlists and MPRIS started as
+  copies of Music (`apps/music`); the theme, widgets and window frame come from the
+  `nixe-*` crates. Every colour is a `@theme_*` token; `@theme_video` (derived
   in `theme::palette_css`) is the dark surround of the picture.
 - mpv: `Mpv::new` sets `LC_NUMERIC=C` first (mpv refuses other numeric locales). The
   wakeup callback only pokes a channel; events are drained on the GTK main loop, so all

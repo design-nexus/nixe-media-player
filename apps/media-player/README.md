@@ -1,4 +1,4 @@
-# Nexus Media Player
+# Media Player
 
 A video player for [Omarchy](https://omarchy.org). It keeps your movies and TV shows in
 a library, remembers where you stopped, and plays them with mpv. It takes its colors
@@ -53,18 +53,18 @@ from your Omarchy theme and fits a half-screen tile.
   (hold <kbd>Shift</kbd> to add them to the queue).
 - **Queue and playlists:** play next or add to the queue from any video's right-click
   menu, make playlists, drag videos onto them in the sidebar, and import or export M3U.
-- **Equalizer:** ten bands and a preamp, with presets and your own saved ones. It opens from the top bar.
+- **Equalizer:** ten bands and a preamp, with presets and your own saved ones. It opens from the status bar.
 - **Media keys and the bar:** MPRIS, so media keys, `playerctl` and status bars control
   it and show what's playing.
 
 ## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/design-nexus/nexus-media-player/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/design-nexus/nixe/main/install.sh | bash -s -- media-player
 ```
 
 This installs GTK 4, mpv and ffmpeg if they're missing, builds with Cargo, and installs
-`media-player` to `~/.local/bin` along with a launcher entry. Add `-s -- --default`
+`nixe-media-player` to `~/.local/bin` along with a launcher entry. Add `-s -- --default`
 after `bash` to also make it the default app for video files.
 
 To remove it, run the same line with `uninstall.sh` in place of `install.sh`. Add
@@ -74,7 +74,7 @@ files are never touched.
 ## Usage
 
 ```
-media-player [OPTIONS] [FILES…]
+nixe-media-player [OPTIONS] [FILES…]
 ```
 
 | Option | What |
@@ -117,11 +117,11 @@ volume. Click to pause; double-click for fullscreen.
 
 | Path | What |
 | --- | --- |
-| `~/.config/nexus-media-player/settings.toml` | Preferences: library folders, playback, subtitles, TMDB, equalizer, theme |
-| `~/.config/nexus-media-player/themes/*.toml` | Your own themes |
-| `~/.local/share/nexus-media-player/library.db` | The library, watch progress, playlists and TMDB answers |
-| `~/.local/share/nexus-media-player/state.json` | The queue, for resuming |
-| `~/.cache/nexus-media-player/art/` | Posters and frames, scaled |
-| `~/.cache/nexus-media-player/scrub/` | Seek bar previews |
+| `~/.config/nixe-media-player/settings.toml` | Preferences: library folders, playback, subtitles, TMDB, equalizer, theme |
+| `~/.config/nixe-media-player/themes/*.toml` | Your own themes |
+| `~/.local/share/nixe-media-player/library.db` | The library, watch progress, playlists and TMDB answers |
+| `~/.local/share/nixe-media-player/state.json` | The queue, for resuming |
+| `~/.cache/nixe-media-player/art/` | Posters and frames, scaled |
+| `~/.cache/nixe-media-player/scrub/` | Seek bar previews |
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.
