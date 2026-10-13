@@ -137,8 +137,8 @@ fn build(app: &gtk::Application) {
     let window = gtk::ApplicationWindow::builder()
         .application(app)
         .title("Media Player")
-        .default_width(1180)
-        .default_height(820)
+        .default_width(1120)
+        .default_height(800)
         .build();
     window.add_css_class("media-window");
     // No client-side titlebar: Hyprland manages the window.
@@ -471,7 +471,8 @@ pub const SHORTCUTS: &[(&str, Keys)] = &[
             (&["Ctrl", "F"], "Search the library"),
             (&["Alt", "←"], "Back (or the mouse's back button)"),
             (&["Ctrl", "B"], "Collapse or expand the sidebar"),
-            (&["F1"], "These shortcuts"),
+            (&["Ctrl", ","], "Settings"),
+            (&["F1"], "Show these shortcuts (or ?)"),
             (&["Ctrl", "Q"], "Close"),
         ],
     ),
