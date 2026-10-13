@@ -23,7 +23,3 @@ toml = "1.1.6"
 ureq = { version = "3", features = ["json"] }
 walkdir = "2.5"
 zbus = "5"
-
-[profile.release]
-lto = "thin"
-strip = true
