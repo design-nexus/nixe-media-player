@@ -1,56 +1,9 @@
 //! Well-known locations. Every path honours the XDG overrides so the whole app
 //! can be pointed at a scratch copy of `~/.config` for testing.
 
+pub use nixe_core::paths::*;
+
 use std::path::PathBuf;
-
-pub fn home() -> PathBuf {
-    std::env::var_os("HOME").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("/"))
-}
-
-pub fn config_home() -> PathBuf {
-    std::env::var_os("XDG_CONFIG_HOME").map(PathBuf::from).filter(|p| p.is_absolute()).unwrap_or_else(|| home().join(".config"))
-}
-
-pub fn cache_dir() -> PathBuf {
-    std::env::var_os("XDG_CACHE_HOME")
-        .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
-        .unwrap_or_else(|| home().join(".cache"))
-        .join("nexus-media-player")
-}
-
-pub fn state_home() -> PathBuf {
-    std::env::var_os("XDG_STATE_HOME")
-        .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
-        .unwrap_or_else(|| home().join(".local/state"))
-}
-
-/// `~/.config/nexus-media-player`: everything this app owns lives here.
-pub fn app_dir() -> PathBuf {
-    config_home().join("nexus-media-player")
-}
-
-pub fn prefs_file() -> PathBuf {
-    app_dir().join("settings.toml")
-}
-
-/// The play queue and position, so playback can resume.
-pub fn state_file() -> PathBuf {
-    data_dir().join("state.json")
-}
-
-pub fn custom_themes_dir() -> PathBuf {
-    app_dir().join("themes")
-}
-
-pub fn data_dir() -> PathBuf {
-    std::env::var_os("XDG_DATA_HOME")
-        .map(PathBuf::from)
-        .filter(|p| p.is_absolute())
-        .unwrap_or_else(|| home().join(".local/share"))
-        .join("nexus-media-player")
-}
 
 /// The library database.
 pub fn library_db() -> PathBuf {
@@ -93,19 +46,8 @@ pub fn pictures_dir() -> PathBuf {
     user_dir("XDG_PICTURES_DIR", "Pictures")
 }
 
-pub fn omarchy_theme_dir() -> PathBuf {
-    state_home().join("omarchy/current/theme")
-}
 
-pub fn omarchy_colors() -> PathBuf {
-    omarchy_theme_dir().join("colors.toml")
-}
-
-/// Replace `$HOME` with `~` for display.
-pub fn pretty(path: &std::path::Path) -> String {
-    let home = home();
-    match path.strip_prefix(&home) {
-        Ok(rest) => format!("~/{}", rest.display()),
-        Err(_) => path.display().to_string(),
-    }
+/// The play queue and position, so playback can resume.
+pub fn state_file() -> PathBuf {
+    data_dir().join("state.json")
 }
