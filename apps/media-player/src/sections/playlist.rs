@@ -11,7 +11,7 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 use std::rc::Rc;
 
-const DRAG_PREFIX: &str = "nexus-media-player-paths\n";
+const DRAG_PREFIX: &str = "nixe-media-player-paths\n";
 
 /// What a video drag carries: a marker line, then one path per line.
 pub fn drag_payload(paths: &[String]) -> String {

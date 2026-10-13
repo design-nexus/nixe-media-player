@@ -522,7 +522,7 @@ pub fn build(page: &Page) {
     if let Some(e) = player::engine_error() {
         let b = widgets::banner(
             &format!(
-                "Videos can't play: mpv didn't start (<tt>{}</tt>). Install <b>mpv</b> and open Nexus Media Player again.",
+                "Videos can't play: mpv didn't start (<tt>{}</tt>). Install <b>mpv</b> and open Media Player again.",
                 gtk::glib::markup_escape_text(&e)
             ),
             true,

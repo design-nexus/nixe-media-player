@@ -1,14 +1,14 @@
 [package]
-name = "nexus-media-player"
+name = "nixe-media-player"
 version = "0.1.0"
 description = "A video player for Omarchy: movies and TV shows library, playlists, subtitles and an equalizer, played with mpv"
 license = "MIT"
-repository = "https://github.com/design-nexus/nexus-media-player"
+repository = "https://github.com/design-nexus/nixe"
 authors = ["Ken Smith"]
 edition = "2024"
 
 [[bin]]
-name = "media-player"
+name = "nixe-media-player"
 path = "src/main.rs"
 
 [dependencies]

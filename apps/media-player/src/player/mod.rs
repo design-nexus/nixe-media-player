@@ -265,7 +265,7 @@ fn options() -> Vec<(String, String)> {
         ("ytdl", if cmd::present("yt-dlp") { "yes" } else { "no" }),
         ("sub-auto", "fuzzy"),
         ("audio-file-auto", "no"),
-        ("audio-client-name", "nexus-media-player"),
+        ("audio-client-name", "nixe-media-player"),
         ("save-position-on-quit", "no"),
         ("reset-on-next-file", "speed,sub-delay,audio-delay,video-aspect-override,video-rotate"),
         ("volume-max", "150"),
@@ -1399,9 +1399,9 @@ fn notify_video() {
     };
     cmd::spawn(&[
         "notify-send",
-        "--app-name=Nexus Media Player",
+        "--app-name=Media Player",
         &format!("--icon={icon}"),
-        "--hint=string:x-canonical-private-synchronous:nexus-media-player",
+        "--hint=string:x-canonical-private-synchronous:nixe-media-player",
         "--expire-time=4000",
         "Now playing",
         &v.label(),

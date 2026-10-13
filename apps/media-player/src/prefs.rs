@@ -1,4 +1,4 @@
-//! This app's own preferences (`~/.config/nexus-media-player/settings.toml`).
+//! This app's own preferences (`~/.config/nixe-media-player/settings.toml`).
 
 pub use nixe_theme::ThemeMode;
 

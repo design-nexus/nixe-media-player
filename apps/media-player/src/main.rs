@@ -1,4 +1,4 @@
-//! Nexus Media Player — a video player for Omarchy.
+//! Media Player — a video player for Omarchy.
 
 mod cmd;
 mod eq;
@@ -26,7 +26,7 @@ use gtk::{gio, glib};
 use std::cell::Cell;
 use std::path::PathBuf;
 
-pub const APP_ID: &str = "io.github.design_nexus.MediaPlayer";
+pub const APP_ID: &str = "io.github.design_nexus.nixe.MediaPlayer";
 
 const USAGE: &str = "Usage: media-player [OPTIONS] [FILES…]\n\
 \n\
@@ -87,7 +87,8 @@ fn expand(files: &[PathBuf]) -> Vec<PathBuf> {
 }
 
 fn main() -> glib::ExitCode {
-    nixe_core::app::init(nixe_core::app::App { slug: "nexus-media-player", name: "Media Player" });
+    nixe_core::app::init(nixe_core::app::App { slug: "nixe-media-player", name: "Media Player" });
+    nixe_core::migrate::from(&["nexus-media-player"]);
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|a| a == "--help" || a == "-h") {
         print!("{USAGE}");

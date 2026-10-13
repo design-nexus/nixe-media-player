@@ -542,7 +542,7 @@ mod tests {
 
     fn temp_db() -> (Connection, PathBuf) {
         let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_nanos();
-        let dir = std::env::temp_dir().join(format!("nexus-media-player-test-{}-{n}", std::process::id()));
+        let dir = std::env::temp_dir().join(format!("nixe-media-player-test-{}-{n}", std::process::id()));
         let path = dir.join("t.db");
         (open_at(&path).unwrap(), dir)
     }

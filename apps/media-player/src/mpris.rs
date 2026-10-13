@@ -17,7 +17,7 @@ use zbus::object_server::SignalEmitter;
 use zbus::zvariant::{ObjectPath, OwnedValue, Value};
 
 const PATH: &str = "/org/mpris/MediaPlayer2";
-pub const BUS_NAME: &str = "org.mpris.MediaPlayer2.nexus_media_player";
+pub const BUS_NAME: &str = "org.mpris.MediaPlayer2.nixe_media_player";
 
 #[derive(Debug, Clone)]
 enum Command {
@@ -105,7 +105,7 @@ enum Signal {
 
 fn track_id(t: &Video) -> String {
     let id = if t.id > 0 { t.id.to_string() } else { format!("f{}", hash(&t.path.to_string_lossy())) };
-    format!("/io/github/design_nexus/MediaPlayer/video/{id}")
+    format!("/io/github/design_nexus/nixe/MediaPlayer/video/{id}")
 }
 
 fn value(v: Value<'_>) -> Option<OwnedValue> {
@@ -178,7 +178,7 @@ impl Root {
 
     #[zbus(property)]
     fn identity(&self) -> String {
-        "Nexus Media Player".into()
+        "Media Player".into()
     }
 
     #[zbus(property)]

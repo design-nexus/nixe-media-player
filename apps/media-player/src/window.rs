@@ -137,7 +137,7 @@ fn nav_button(icon: &str, title: &str, tooltip: &str) -> (gtk::Button, gtk::Labe
 fn build(app: &gtk::Application) {
     let window = gtk::ApplicationWindow::builder()
         .application(app)
-        .title("Nexus Media Player")
+        .title("Media Player")
         .default_width(1180)
         .default_height(820)
         .build();
@@ -1146,7 +1146,7 @@ fn snapshot_and_quit(app: &gtk::Application, out: std::path::PathBuf) {
     let window = ui.borrow().window.clone();
     window.set_opacity(0.01);
     // A distinct title lets a window rule float it at a set size for screenshots.
-    window.set_title(Some("Nexus Media Player snapshot"));
+    window.set_title(Some("Media Player snapshot"));
     window.set_default_size(
         std::env::var("NMP_SNAPSHOT_W").ok().and_then(|v| v.parse().ok()).unwrap_or(1180),
         std::env::var("NMP_SNAPSHOT_H").ok().and_then(|v| v.parse().ok()).unwrap_or(820),
