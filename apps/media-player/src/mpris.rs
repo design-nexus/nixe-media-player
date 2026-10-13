@@ -387,7 +387,7 @@ fn serve(state: Shared, tx: async_channel::Sender<Command>, signals: mpsc::Recei
         });
         drop(guard);
         if let Err(e) = r {
-            eprintln!("media-player: mpris: {e}");
+            eprintln!("nixe-media-player: mpris: {e}");
         }
     }
     Ok(())
@@ -489,7 +489,7 @@ pub fn start(app: &gtk::Application) {
             .name("mpris".into())
             .spawn(move || {
                 if let Err(e) = serve(shared, cmd_tx, sig_rx) {
-                    eprintln!("media-player: MPRIS unavailable: {e}");
+                    eprintln!("nixe-media-player: MPRIS unavailable: {e}");
                 }
             })
             .ok();

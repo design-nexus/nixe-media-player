@@ -28,7 +28,7 @@ use std::path::PathBuf;
 
 pub const APP_ID: &str = "io.github.design_nexus.nixe.MediaPlayer";
 
-const USAGE: &str = "Usage: media-player [OPTIONS] [FILES…]\n\
+const USAGE: &str = "Usage: nixe-media-player [OPTIONS] [FILES…]\n\
 \n\
   FILES…          play these videos, folders or .m3u playlists\n\
   --enqueue       add FILES to the queue instead of playing them now\n\
