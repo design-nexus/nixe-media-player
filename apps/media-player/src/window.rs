@@ -1,5 +1,5 @@
-//! The main window: a top bar (sidebar toggle, where you are, search,
-//! settings, close), the navigation sidebar, a stack of pages built the first
+//! The main window: the navigation sidebar (its head holds the toggle and
+//! search), a stack of pages built the first
 //! time they're shown, the player bar and a status bar underneath. In
 //! fullscreen only the player page shows. Settings opens as a dialog over the
 //! window (see `settings_dialog`).
@@ -9,6 +9,7 @@ use crate::sections::{self, Section};
 use crate::widgets;
 use crate::{fmt, panel_dialog, player, playerbar, prefs, settings_dialog, theme};
 use gtk::prelude::*;
+use nixe_ui::chrome;
 use gtk::{gdk, glib};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -22,10 +23,8 @@ struct Ui {
     playlist_box: gtk::Box,
     search: gtk::SearchEntry,
     bar: gtk::Box,
-    /// The top bar and the status bar, hidden in fullscreen.
+    /// The search strip and the status bar, hidden in fullscreen.
     chrome: Vec<gtk::Widget>,
-    /// The current page's name, in the top bar.
-    crumb: gtk::Label,
     pages: HashMap<String, gtk::Widget>,
     sections: Vec<Section>,
     current: String,
@@ -188,6 +187,9 @@ fn build(app: &gtk::Application) {
         .vexpand(true)
         .child(&list)
         .build();
+    let head = chrome::sidebar_head("Media Player", Some("Search the library (Ctrl+F)"));
+    head.toggle.connect_clicked(|_| toggle_sidebar());
+    nav.append(&head.root);
     nav.append(&nav_scroll);
 
     // ----- Content -----
@@ -198,8 +200,22 @@ fn build(app: &gtk::Application) {
     stack.set_transition_type(gtk::StackTransitionType::Crossfade);
     stack.set_transition_duration(if prefs::get().reduce_motion { 0 } else { 160 });
 
+    let search = search_entry();
+    if let Some(find) = &head.search {
+        let s = search.clone();
+        find.connect_clicked(move |_| {
+            if s.is_visible() && s.text().is_empty() {
+                s.set_visible(false);
+            } else {
+                s.set_visible(true);
+                s.grab_focus();
+            }
+        });
+    }
+    let strip = chrome::search_strip(&search);
     let content = gtk::Box::new(gtk::Orientation::Vertical, 0);
     content.set_hexpand(true);
+    content.append(&strip);
     content.append(&stack);
     let bar = playerbar::build();
     content.append(&bar);
@@ -216,11 +232,9 @@ fn build(app: &gtk::Application) {
     body.append(&nav);
     body.append(&content);
 
-    let (top, crumb, search) = top_bar(&window);
     let status = status_bar();
     let frame = gtk::Box::new(gtk::Orientation::Vertical, 0);
     frame.add_css_class("window-frame");
-    frame.append(&top);
     frame.append(&body);
     frame.append(&status);
 
@@ -285,8 +299,7 @@ fn build(app: &gtk::Application) {
         playlist_box: playlist_box.clone(),
         search,
         bar,
-        chrome: vec![top.upcast(), status.upcast()],
-        crumb,
+        chrome: vec![strip.upcast(), status.upcast()],
         pages: HashMap::new(),
         sections,
         current: String::new(),
@@ -303,59 +316,18 @@ fn build(app: &gtk::Application) {
     refresh_playlists();
 }
 
-/// The bar across the top: the sidebar toggle and where you are on the left;
-/// search, settings and close on the right.
-fn top_bar(window: &gtk::ApplicationWindow) -> (gtk::Box, gtk::Label, gtk::SearchEntry) {
-    let bar = widgets::hbox(4);
-    bar.add_css_class("top-bar");
-    let toggle = widgets::bar_button("sidebar-show-symbolic", "Collapse or expand the sidebar (Ctrl+B)");
-    toggle.connect_clicked(|_| toggle_sidebar());
-    bar.append(&toggle);
-    let crumbs = widgets::hbox(10);
-    crumbs.add_css_class("crumbs");
-    crumbs.append(&widgets::label("Media Player", "crumb-root"));
-    crumbs.append(&widgets::label("/", "crumb-sep"));
-    let crumb = widgets::label("", "crumb");
-    crumb.set_ellipsize(gtk::pango::EllipsizeMode::End);
-    crumbs.append(&crumb);
-    crumbs.set_hexpand(true);
-    bar.append(&crumbs);
-
+/// The library search: hidden until Ctrl+F or the sidebar's search button.
+fn search_entry() -> gtk::SearchEntry {
     let search = gtk::SearchEntry::new();
     search.set_placeholder_text(Some("Search library"));
-    search.add_css_class("bar-search");
-    search.set_width_chars(26);
     search.set_visible(false);
-    bar.append(&search);
-    let find = widgets::bar_button("system-search-symbolic", "Search the library (Ctrl+F)");
-    let s = search.clone();
-    find.connect_clicked(move |_| {
-        if s.is_visible() && s.text().is_empty() {
-            s.set_visible(false);
-        } else {
-            s.set_visible(true);
-            s.grab_focus();
-        }
-    });
-    bar.append(&find);
     search.connect_search_changed(|e| on_search(&e.text()));
     search.connect_activate(|_| sections::search::focus_results());
     search.connect_stop_search(|e| {
         e.set_text("");
         e.set_visible(false);
     });
-
-    let eq = widgets::bar_button("nmp-equalizer-symbolic", "Equalizer");
-    eq.connect_clicked(|_| open_equalizer());
-    bar.append(&eq);
-    let gear = widgets::bar_button("emblem-system-symbolic", "Settings");
-    gear.connect_clicked(|_| settings_dialog::open());
-    bar.append(&gear);
-    let close = widgets::bar_button("window-close-symbolic", "Close (Ctrl+Q)");
-    let w = window.clone();
-    close.connect_clicked(move |_| w.close());
-    bar.append(&close);
-    (bar, crumb, search)
+    search
 }
 
 /// The bar along the bottom: the shortcuts on the left, the library on the right.
@@ -400,6 +372,8 @@ fn status_bar() -> gtk::Box {
     };
     refresh();
     store::subscribe(&readout, move |_| refresh());
+    bar.append(&chrome::status_action("nmp-equalizer-symbolic", "Equalizer", open_equalizer));
+    bar.append(&chrome::gear(settings_dialog::open));
     bar
 }
 
@@ -410,6 +384,9 @@ pub fn overlay() -> Option<gtk::Overlay> {
 
 /// The sidebar shows only icons: hide the labels, centre the icons and the toggle.
 fn apply_compact(nav: &gtk::Box, compact: bool) {
+    if let Some(head) = nav.first_child().and_downcast::<gtk::Box>() {
+        chrome::set_head_compact(&head, compact);
+    }
     if compact {
         nav.add_css_class("compact");
     } else {
@@ -1017,7 +994,7 @@ pub fn navigate(id: &str) {
     }
     u.stack.set_visible_child_name(&id);
     u.current = id.clone();
-    u.crumb.set_text(&page_title(&u.sections, &id));
+    chrome::set_title(&u.window, "Media Player", &page_title(&u.sections, &id));
     // The player has its own controls; the bar is for everywhere else.
     let full = u.window.is_fullscreen();
     u.bar.set_visible(id != "now-playing" && !full && player::current().is_some());
