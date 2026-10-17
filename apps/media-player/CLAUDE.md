@@ -34,6 +34,7 @@
   only, ≤100 cells), cut up by `FramePaintable`.
 - Widgets subscribe with `player::subscribe(&widget, …)` and `store::subscribe`. Never
   hold a `with(...)` borrow while calling `emit`.
+- Control (`src/control.rs`): `nixe_core::control::serve_async` on the app's bus name, for Nixe Assistant: `video.search`, `play`, `status`, `control`.
 - Checks: `cargo clippy --all-targets -- -D warnings`, `cargo test` (one test starts
   libmpv). Layout check: `NMP_SNAPSHOT=/tmp/x.png media-player --section movies`
   (quit any running instance first; it's single-instance). Snapshots render offscreen,
