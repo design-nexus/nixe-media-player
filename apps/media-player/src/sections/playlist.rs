@@ -128,7 +128,7 @@ fn export(id: i64, tracks: Vec<Rc<crate::library::Video>>) {
         let Some(path) = file.path() else { return };
         let owned: Vec<crate::library::Video> = tracks.iter().map(|t| (**t).clone()).collect();
         let base = path.parent().map(|p| p.to_path_buf()).unwrap_or_default();
-        match crate::cmd::atomic_write(&path, &m3u::write(&owned, &base)) {
+        match crate::cmd::atomic_write(&path, m3u::write(&owned, &base)) {
             Ok(()) => window::toast(&format!("Saved {}.", crate::paths::pretty(&path))),
             Err(e) => window::toast(&format!("Couldn't save the playlist: {e}")),
         }
