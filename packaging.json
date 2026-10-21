@@ -1,0 +1,10 @@
+{
+  "application": "media-player",
+  "directory": "media-player",
+  "packages": [
+    "nixe-media-player"
+  ],
+  "manifest": "Cargo.toml",
+  "prepare": [],
+  "binaries": []
+}
