@@ -12,6 +12,7 @@ name = "nixe-media-player"
 path = "src/main.rs"
 
 [dependencies]
+nixe-playback = { path = "../../crates/nixe-playback" }
 nixe-core = { path = "../../crates/nixe-core" }
 nixe-ui = { path = "../../crates/nixe-ui" }
 nixe-theme = { path = "../../crates/nixe-theme" }

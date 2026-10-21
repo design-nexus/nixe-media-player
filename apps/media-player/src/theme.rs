@@ -9,7 +9,7 @@ pub fn install() {
     nixe_theme::install(Style {
         window_class: "media-window",
         base_skip: &[],
-        css: include_str!("style.css"),
+        css: nixe_playback::controls::stylesheet(include_str!("style.css")),
         no_glow_css: "\n.theme-card.selected, .toast, .poster-grid > child:focus-visible, window.media-window button.wide-card:focus-visible { box-shadow: 0 0 0 1px alpha(@theme_accent, 0.6); }\n\
              window.media-window button.play-button { box-shadow: none; }\n\
              window.media-window scale > trough > slider { box-shadow: 0 0 0 1px alpha(@theme_accent, 0.72); }\n\

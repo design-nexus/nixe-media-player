@@ -15,54 +15,7 @@ fn boxed<T: 'static>(obj: &glib::Object) -> Option<std::cell::Ref<'_, T>> {
 }
 
 /// A thin bar along the bottom of a picture showing how far in a video is.
-pub fn progress_strip() -> gtk::ProgressBar {
-    let p = gtk::ProgressBar::new();
-    p.add_css_class("watch-progress");
-    p.set_valign(gtk::Align::End);
-    p.set_can_target(false);
-    p.set_visible(false);
-    p
-}
-
-pub fn set_progress(strip: &gtk::ProgressBar, fraction: f64) {
-    strip.set_fraction(fraction);
-    strip.set_visible(fraction > 0.0);
-}
-
-/// A play glyph in the middle of a picture, shown while the pointer is over
-/// its card.
-pub fn hover_play() -> gtk::Image {
-    let play = gtk::Image::from_icon_name("media-playback-start-symbolic");
-    play.add_css_class("hover-play");
-    play.set_pixel_size(24);
-    play.set_halign(gtk::Align::Center);
-    play.set_valign(gtk::Align::Center);
-    play.set_can_target(false);
-    play
-}
-
-/// A small round mark in a picture's corner: a tick when watched, or a count.
-pub fn badge() -> gtk::Label {
-    let l = gtk::Label::new(None);
-    l.add_css_class("badge");
-    l.set_halign(gtk::Align::End);
-    l.set_valign(gtk::Align::Start);
-    l.set_can_target(false);
-    l.set_visible(false);
-    l
-}
-
-pub fn set_badge(badge: &gtk::Label, watched: bool, count: usize) {
-    if watched {
-        badge.set_text("✓");
-        badge.add_css_class("watched");
-        badge.set_visible(true);
-    } else {
-        badge.remove_css_class("watched");
-        badge.set_text(&count.to_string());
-        badge.set_visible(count > 0);
-    }
-}
+pub use nixe_ui::media::{progress_strip, set_progress, badge, set_badge, hover_play};
 
 /// Something a poster grid holds.
 #[derive(Clone)]
@@ -84,25 +37,8 @@ pub struct PosterCard {
 
 impl PosterCard {
     pub fn new(width: i32) -> PosterCard {
-        let root = widgets::vbox(6);
-        root.add_css_class("poster-card");
         let art = Art::poster(width);
-        let strip = progress_strip();
-        art.root.add_overlay(&strip);
-        let badge = badge();
-        art.root.add_overlay(&badge);
-        art.root.add_overlay(&hover_play());
-        root.append(&art.root);
-        let title = widgets::label("", "card-title");
-        title.set_ellipsize(gtk::pango::EllipsizeMode::End);
-        title.set_max_width_chars(1);
-        title.set_size_request(width, -1);
-        let meta = widgets::label("", "card-meta");
-        meta.set_ellipsize(gtk::pango::EllipsizeMode::End);
-        meta.set_max_width_chars(1);
-        meta.set_size_request(width, -1);
-        root.append(&title);
-        root.append(&meta);
+        let nixe_ui::media::PosterCard { root, strip, badge, title, meta } = nixe_ui::media::PosterCard::new(&art.root, width);
         PosterCard { root, art, strip, badge, title, meta }
     }
 

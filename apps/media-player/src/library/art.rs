@@ -217,23 +217,7 @@ pub struct Art {
 
 impl Art {
     pub fn new(width: i32, height: i32, small: bool, icon: &str) -> Art {
-        let root = gtk::Overlay::new();
-        root.add_css_class("art");
-        root.set_overflow(gtk::Overflow::Hidden);
-        root.set_size_request(width, height);
-        root.set_halign(gtk::Align::Start);
-        root.set_valign(gtk::Align::Start);
-        let placeholder = gtk::Image::from_icon_name(icon);
-        placeholder.add_css_class("art-placeholder");
-        placeholder.set_pixel_size((width.min(height) / 3).clamp(16, 72));
-        placeholder.set_size_request(width, height);
-        root.set_child(Some(&placeholder));
-        let picture = gtk::Picture::new();
-        picture.set_content_fit(gtk::ContentFit::Cover);
-        picture.set_can_shrink(true);
-        picture.set_size_request(width, height);
-        picture.set_visible(false);
-        root.add_overlay(&picture);
+        let nixe_ui::media::Artwork { root, picture, placeholder } = nixe_ui::media::Artwork::new(width, height, icon);
         Art { root, picture, placeholder, key: Default::default(), small }
     }
 

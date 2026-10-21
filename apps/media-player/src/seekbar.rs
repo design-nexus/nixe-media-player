@@ -21,27 +21,7 @@ fn chapter_at(secs: f64) -> Option<String> {
 
 impl SeekBar {
     pub fn new() -> SeekBar {
-        let root = widgets::hbox(10);
-        root.add_css_class("seek-row");
-        let pos = widgets::label("0:00", "time-readout");
-        pos.add_css_class("mono");
-        pos.set_xalign(1.0);
-        pos.set_width_chars(7);
-        let seek = gtk::Scale::with_range(gtk::Orientation::Horizontal, 0.0, 1.0, 1.0);
-        seek.set_draw_value(false);
-        seek.set_hexpand(true);
-        seek.add_css_class("seek");
-        seek.set_focus_on_click(false);
-        let dur = widgets::label("0:00", "time-readout");
-        dur.add_css_class("mono");
-        dur.add_css_class("clickable");
-        dur.set_width_chars(8);
-        dur.set_xalign(0.0);
-        dur.set_tooltip_text(Some("Show the time left or the length"));
-        dur.set_cursor_from_name(Some("pointer"));
-        root.append(&pos);
-        root.append(&seek);
-        root.append(&dur);
+        let nixe_playback::controls::SeekWidgets { root, pos, seek, dur } = nixe_playback::controls::SeekWidgets::new();
 
         // ----- Preview -----
         let pop = gtk::Popover::new();

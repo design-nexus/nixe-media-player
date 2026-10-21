@@ -95,6 +95,7 @@ pub fn present(app: &gtk::Application, section: Option<&str>) {
 /// Our own symbolic icons, for things the icon theme has no glyph for.
 /// They're written to the cache once and added to the icon search path.
 fn install_icons() {
+    nixe_playback::controls::install_icons();
     const ICONS: &[(&str, &str)] = &[
         ("nmp-home-symbolic.svg", include_str!("../data/icons/nmp-home-symbolic.svg")),
         ("nmp-movie-symbolic.svg", include_str!("../data/icons/nmp-movie-symbolic.svg")),
@@ -103,9 +104,6 @@ fn install_icons() {
         ("nmp-playlist-symbolic.svg", include_str!("../data/icons/nmp-playlist-symbolic.svg")),
         ("nmp-queue-symbolic.svg", include_str!("../data/icons/nmp-queue-symbolic.svg")),
         ("nmp-equalizer-symbolic.svg", include_str!("../data/icons/nmp-equalizer-symbolic.svg")),
-        ("nmp-subtitles-symbolic.svg", include_str!("../data/icons/nmp-subtitles-symbolic.svg")),
-        ("nmp-audio-track-symbolic.svg", include_str!("../data/icons/nmp-audio-track-symbolic.svg")),
-        ("nmp-speed-symbolic.svg", include_str!("../data/icons/nmp-speed-symbolic.svg")),
     ];
     let dir = crate::paths::cache_dir().join("icons");
     for (name, svg) in ICONS {
@@ -141,6 +139,7 @@ fn build(app: &gtk::Application) {
         .default_height(800)
         .build();
     window.add_css_class("media-window");
+    window.add_css_class("playback-window");
     // No client-side titlebar: Hyprland manages the window.
     window.set_titlebar(Some(&gtk::Box::new(gtk::Orientation::Horizontal, 0)));
     nixe_ui::keys::install(&window, nixe_ui::keys::Common::default());
@@ -335,14 +334,7 @@ fn search_entry() -> gtk::SearchEntry {
 fn status_bar() -> gtk::Box {
     let bar = widgets::hbox(16);
     bar.add_css_class("status-bar");
-    let help = gtk::Button::new();
-    help.add_css_class("status-help");
-    let content = widgets::hbox(10);
-    content.append(&widgets::label("F1", "status-key"));
-    content.append(&widgets::label("Shortcuts", ""));
-    help.set_child(Some(&content));
-    help.set_tooltip_text(Some("Show the keyboard shortcuts"));
-    help.connect_clicked(|_| show_shortcuts());
+    let help = chrome::shortcuts_button(show_shortcuts);
     bar.append(&help);
     let spacer = widgets::hbox(0);
     spacer.set_hexpand(true);
