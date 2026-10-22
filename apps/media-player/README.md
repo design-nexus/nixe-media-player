@@ -60,7 +60,7 @@ from your Omarchy theme and fits a half-screen tile.
 ## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/design-nexus/nixe/main/install.sh | bash -s -- media-player
+curl -fsSL https://raw.githubusercontent.com/design-nexus/nixe-media-player/main/install.sh | bash -s -- media-player
 ```
 
 This installs GTK 4, mpv and ffmpeg if they're missing, builds with Cargo, and installs
