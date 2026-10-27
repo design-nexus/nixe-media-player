@@ -217,7 +217,7 @@ pub struct Art {
 
 impl Art {
     pub fn new(width: i32, height: i32, small: bool, icon: &str) -> Art {
-        let nixe_ui::media::Artwork { root, picture, placeholder } = nixe_ui::media::Artwork::new(width, height, icon);
+        let nyx_ui::media::Artwork { root, picture, placeholder } = nyx_ui::media::Artwork::new(width, height, icon);
         Art { root, picture, placeholder, key: Default::default(), small }
     }
 

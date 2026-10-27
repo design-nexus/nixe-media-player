@@ -17,7 +17,7 @@ use zbus::object_server::SignalEmitter;
 use zbus::zvariant::{ObjectPath, OwnedValue, Value};
 
 const PATH: &str = "/org/mpris/MediaPlayer2";
-pub const BUS_NAME: &str = "org.mpris.MediaPlayer2.nixe_media_player";
+pub const BUS_NAME: &str = "org.mpris.MediaPlayer2.nyx_media_player";
 
 #[derive(Debug, Clone)]
 enum Command {
@@ -105,7 +105,7 @@ enum Signal {
 
 fn track_id(t: &Video) -> String {
     let id = if t.id > 0 { t.id.to_string() } else { format!("f{}", hash(&t.path.to_string_lossy())) };
-    format!("/io/github/design_nexus/nixe/MediaPlayer/video/{id}")
+    format!("/io/github/design_nexus/nyx/MediaPlayer/video/{id}")
 }
 
 fn value(v: Value<'_>) -> Option<OwnedValue> {
@@ -387,7 +387,7 @@ fn serve(state: Shared, tx: async_channel::Sender<Command>, signals: mpsc::Recei
         });
         drop(guard);
         if let Err(e) = r {
-            eprintln!("nixe-media-player: mpris: {e}");
+            eprintln!("nyx-media-player: mpris: {e}");
         }
     }
     Ok(())
@@ -489,7 +489,7 @@ pub fn start(app: &gtk::Application) {
             .name("mpris".into())
             .spawn(move || {
                 if let Err(e) = serve(shared, cmd_tx, sig_rx) {
-                    eprintln!("nixe-media-player: MPRIS unavailable: {e}");
+                    eprintln!("nyx-media-player: MPRIS unavailable: {e}");
                 }
             })
             .ok();

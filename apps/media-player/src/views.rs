@@ -15,7 +15,7 @@ fn boxed<T: 'static>(obj: &glib::Object) -> Option<std::cell::Ref<'_, T>> {
 }
 
 /// A thin bar along the bottom of a picture showing how far in a video is.
-pub use nixe_ui::media::{progress_strip, set_progress, badge, set_badge, hover_play};
+pub use nyx_ui::media::{progress_strip, set_progress, badge, set_badge, hover_play};
 
 /// Something a poster grid holds.
 #[derive(Clone)]
@@ -38,7 +38,7 @@ pub struct PosterCard {
 impl PosterCard {
     pub fn new(width: i32) -> PosterCard {
         let art = Art::poster(width);
-        let nixe_ui::media::PosterCard { root, strip, badge, title, meta } = nixe_ui::media::PosterCard::new(&art.root, width);
+        let nyx_ui::media::PosterCard { root, strip, badge, title, meta } = nyx_ui::media::PosterCard::new(&art.root, width);
         PosterCard { root, art, strip, badge, title, meta }
     }
 

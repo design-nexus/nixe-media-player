@@ -1,9 +1,9 @@
-//! Media Player's tools on the control interface (`nixe_core::control`), for Nixe
+//! Media Player's tools on the control interface (`nyx_core::control`), for Nyx
 //! Assistant: find movies and shows, play one, and read or steer what's playing.
 
 use crate::library::{store, Video};
 use crate::player::{self, queue::Repeat, State};
-use nixe_core::control::{text, Reply};
+use nyx_core::control::{text, Reply};
 use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::rc::Rc;

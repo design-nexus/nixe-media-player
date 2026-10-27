@@ -1,21 +1,21 @@
 [package]
-name = "nixe-media-player"
+name = "nyx-media-player"
 version = "0.1.0"
 description = "A video player for Omarchy: movies and TV shows library, playlists, subtitles and an equalizer, played with mpv"
 license = "MIT"
-repository = "https://github.com/design-nexus/nixe-media-player"
+repository = "https://github.com/design-nexus/nyx-media-player"
 authors = ["Ken Smith"]
 edition = "2024"
 
 [[bin]]
-name = "nixe-media-player"
+name = "nyx-media-player"
 path = "src/main.rs"
 
 [dependencies]
-nixe-playback = { git = "https://github.com/design-nexus/nixe-design.git", rev = "64786dc295708951013c126351f1830664a7d15d" }
-nixe-core = { git = "https://github.com/design-nexus/nixe-core.git", rev = "87682e6c936b6a4f006639b1a1c099e96346c07c" }
-nixe-ui = { git = "https://github.com/design-nexus/nixe-design.git", rev = "64786dc295708951013c126351f1830664a7d15d" }
-nixe-theme = { git = "https://github.com/design-nexus/nixe-design.git", rev = "64786dc295708951013c126351f1830664a7d15d" }
+nyx-playback = { git = "https://github.com/design-nexus/nyx-design.git", rev = "938c638951a53f5874a8276d07ac9dcd68b191ad" }
+nyx-core = { git = "https://github.com/design-nexus/nyx-core.git", rev = "52cba5e27a3dd5f00c780f53e423302b4b5f9c9c" }
+nyx-ui = { git = "https://github.com/design-nexus/nyx-design.git", rev = "938c638951a53f5874a8276d07ac9dcd68b191ad" }
+nyx-theme = { git = "https://github.com/design-nexus/nyx-design.git", rev = "938c638951a53f5874a8276d07ac9dcd68b191ad" }
 anyhow = "1.0.104"
 async-channel = "2"
 gtk = { version = "0.11", package = "gtk4", features = ["v4_18"] }

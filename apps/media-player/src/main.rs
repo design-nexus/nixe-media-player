@@ -27,9 +27,9 @@ use gtk::{gio, glib};
 use std::cell::Cell;
 use std::path::PathBuf;
 
-pub const APP_ID: &str = "io.github.design_nexus.nixe.MediaPlayer";
+pub const APP_ID: &str = "io.github.design_nexus.nyx.MediaPlayer";
 
-const USAGE: &str = "Usage: nixe-media-player [OPTIONS] [FILES…]\n\
+const USAGE: &str = "Usage: nyx-media-player [OPTIONS] [FILES…]\n\
 \n\
   FILES…          play these videos, folders or .m3u playlists\n\
   --enqueue       add FILES to the queue instead of playing them now\n\
@@ -88,8 +88,8 @@ fn expand(files: &[PathBuf]) -> Vec<PathBuf> {
 }
 
 fn main() -> glib::ExitCode {
-    nixe_core::app::init(nixe_core::app::App { slug: "nixe-media-player", name: "Media Player" });
-    nixe_core::migrate::from(&["nexus-media-player"]);
+    nyx_core::app::init(nyx_core::app::App { slug: "nyx-media-player", name: "Media Player" });
+    nyx_core::migrate::from(&["nexus-media-player"]);
     let args: Vec<String> = std::env::args().collect();
     if args.iter().any(|a| a == "--help" || a == "-h") {
         print!("{USAGE}");
@@ -104,8 +104,8 @@ fn main() -> glib::ExitCode {
     }
 
     let app = gtk::Application::builder().application_id(APP_ID).flags(gio::ApplicationFlags::HANDLES_COMMAND_LINE).build();
-    // Nixe Assistant finds and plays videos through this (primary instance only).
-    app.connect_startup(|app| nixe_core::control::serve_async(app, control::tools(), control::handle));
+    // Nyx Assistant finds and plays videos through this (primary instance only).
+    app.connect_startup(|app| nyx_core::control::serve_async(app, control::tools(), control::handle));
     app.connect_command_line(|app, cl| {
         let argv: Vec<String> = cl.arguments().iter().map(|a| a.to_string_lossy().to_string()).collect();
         let has = |flag: &str| argv.iter().any(|a| a == flag);

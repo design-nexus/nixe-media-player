@@ -1,2 +1,2 @@
 //! Compatibility export of the shared playback implementation.
-pub use nixe_playback::video::*;
+pub use nyx_playback::video::*;

@@ -9,7 +9,7 @@ use crate::sections::{self, Section};
 use crate::widgets;
 use crate::{fmt, panel_dialog, player, playerbar, prefs, settings_dialog, theme};
 use gtk::prelude::*;
-use nixe_ui::chrome;
+use nyx_ui::chrome;
 use gtk::{gdk, glib};
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -76,7 +76,7 @@ pub fn present(app: &gtk::Application, section: Option<&str>) {
     theme::install();
     install_icons();
     build(app);
-    let start = section.map(String::from).unwrap_or_else(|| nixe_theme::start_page("home", &prefs::get().last_section));
+    let start = section.map(String::from).unwrap_or_else(|| nyx_theme::start_page("home", &prefs::get().last_section));
     navigate(&start);
     // Developer aid: NMP_SNAPSHOT=/path.png renders the window to a PNG
     // (invisibly) and quits, so layouts can be checked without a visible window.
@@ -95,7 +95,7 @@ pub fn present(app: &gtk::Application, section: Option<&str>) {
 /// Our own symbolic icons, for things the icon theme has no glyph for.
 /// They're written to the cache once and added to the icon search path.
 fn install_icons() {
-    nixe_playback::controls::install_icons();
+    nyx_playback::controls::install_icons();
     const ICONS: &[(&str, &str)] = &[
         ("nmp-home-symbolic.svg", include_str!("../data/icons/nmp-home-symbolic.svg")),
         ("nmp-movie-symbolic.svg", include_str!("../data/icons/nmp-movie-symbolic.svg")),
@@ -142,7 +142,7 @@ fn build(app: &gtk::Application) {
     window.add_css_class("playback-window");
     // No client-side titlebar: Hyprland manages the window.
     window.set_titlebar(Some(&gtk::Box::new(gtk::Orientation::Horizontal, 0)));
-    nixe_ui::keys::install(&window, nixe_ui::keys::Common::default());
+    nyx_ui::keys::install(&window, nyx_ui::keys::Common::default());
     window.set_icon_name(Some(crate::APP_ID));
 
     let sections = sections::all();
@@ -1082,7 +1082,7 @@ fn refresh_playlists() {
 /// Show a short message at the bottom of the window.
 pub fn toast(message: &str) {
     let Some(ui) = ui() else {
-        eprintln!("nixe-media-player: {message}");
+        eprintln!("nyx-media-player: {message}");
         return;
     };
     let overlay = ui.borrow().overlay.clone();

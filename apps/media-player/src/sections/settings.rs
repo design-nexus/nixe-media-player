@@ -443,13 +443,13 @@ pub fn build(page: &Page) {
 
     // ----- This window -----
     let g = page.group("This window");
-    g.add(&nixe_ui::widgets::start_row());
+    g.add(&nyx_ui::widgets::start_row());
     let p = prefs::get();
     let app_themes = theme::all();
     let options: Vec<(String, String)> = app_themes.iter().map(|t| (t.id.clone(), t.name.clone())).collect();
     let (theme_row, theme_dd) = widgets::choice_row(
         "Theme",
-        "Dracula, Catppuccin, Tokyo Night, One Dark Pro and more. Add your own in <tt>~/.config/nixe-media-player/themes</tt>.",
+        "Dracula, Catppuccin, Tokyo Night, One Dark Pro and more. Add your own in <tt>~/.config/nyx-media-player/themes</tt>.",
         options,
         &p.theme,
         |id| {

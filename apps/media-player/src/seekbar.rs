@@ -21,7 +21,7 @@ fn chapter_at(secs: f64) -> Option<String> {
 
 impl SeekBar {
     pub fn new() -> SeekBar {
-        let nixe_playback::controls::SeekWidgets { root, pos, seek, dur } = nixe_playback::controls::SeekWidgets::new();
+        let nyx_playback::controls::SeekWidgets { root, pos, seek, dur } = nyx_playback::controls::SeekWidgets::new();
 
         // ----- Preview -----
         let pop = gtk::Popover::new();

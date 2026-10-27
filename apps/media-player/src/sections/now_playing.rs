@@ -42,7 +42,7 @@ pub fn flash(text: &str) {
     });
 }
 
-use nixe_playback::controls::{choice, volume_icon};
+use nyx_playback::controls::{choice, volume_icon};
 
 /// A popover row: Delay  −  value  +
 fn delay_row(tips: (&str, &str), step: f64, get: fn() -> f64, set: fn(f64), show: fn(f64) -> String) -> gtk::Box {
@@ -529,16 +529,16 @@ pub fn build(page: &Page) {
     // ----- Bottom: controls -----
     let seek = SeekBar::new();
     let p = prefs::get();
-    let nixe_playback::controls::OsdControls {
+    let nyx_playback::controls::OsdControls {
         root: controls, prev, back, play, fwd, next, mute, volume, speed_label,
         chapters, shape, speed, audio, subs, full, close,
-    } = nixe_playback::controls::OsdControls::new(&seek.root, p.volume, player::max_volume(), p.muted);
-    nixe_playback::controls::fill_menu(&chapters, chapter_menu);
+    } = nyx_playback::controls::OsdControls::new(&seek.root, p.volume, player::max_volume(), p.muted);
+    nyx_playback::controls::fill_menu(&chapters, chapter_menu);
     let pic = picture.clone();
-    nixe_playback::controls::fill_menu(&shape, move |c, p| picture_menu(c, p, &pic));
-    nixe_playback::controls::fill_menu(&speed, speed_menu);
-    nixe_playback::controls::fill_menu(&audio, audio_menu);
-    nixe_playback::controls::fill_menu(&subs, subtitle_menu);
+    nyx_playback::controls::fill_menu(&shape, move |c, p| picture_menu(c, p, &pic));
+    nyx_playback::controls::fill_menu(&speed, speed_menu);
+    nyx_playback::controls::fill_menu(&audio, audio_menu);
+    nyx_playback::controls::fill_menu(&subs, subtitle_menu);
     overlay.add_overlay(&controls);
     let up_next = UpNext::new();
     overlay.add_overlay(&up_next.root);
@@ -597,7 +597,7 @@ pub fn build(page: &Page) {
 
     overlay.connect_unmap(|_| player::set_sub_pos(100.0));
 
-    let wake = nixe_playback::controls::install_autohide(
+    let wake = nyx_playback::controls::install_autohide(
         &overlay, &top, &controls,
         vec![chapters.clone(), shape.clone(), speed.clone(), audio.clone(), subs.clone()],
         Rc::new(|| player::state() == State::Playing), place_subs.clone(),

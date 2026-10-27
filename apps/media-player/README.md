@@ -60,11 +60,11 @@ from your Omarchy theme and fits a half-screen tile.
 ## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/design-nexus/nixe-media-player/main/install.sh | bash -s -- media-player
+curl -fsSL https://raw.githubusercontent.com/design-nexus/nyx-media-player/main/install.sh | bash -s -- media-player
 ```
 
 This installs GTK 4, mpv and ffmpeg if they're missing, builds with Cargo, and installs
-`nixe-media-player` to `~/.local/bin` along with a launcher entry. Add `-s -- --default`
+`nyx-media-player` to `~/.local/bin` along with a launcher entry. Add `-s -- --default`
 after `bash` to also make it the default app for video files.
 
 To remove it, run the same line with `uninstall.sh` in place of `install.sh`. Add
@@ -74,7 +74,7 @@ files are never touched.
 ## Usage
 
 ```
-nixe-media-player [OPTIONS] [FILES…]
+nyx-media-player [OPTIONS] [FILES…]
 ```
 
 | Option | What |
@@ -117,11 +117,11 @@ volume. Click to pause; double-click for fullscreen.
 
 | Path | What |
 | --- | --- |
-| `~/.config/nixe-media-player/settings.toml` | Preferences: library folders, playback, subtitles, TMDB, equalizer, theme |
-| `~/.config/nixe-media-player/themes/*.toml` | Your own themes |
-| `~/.local/share/nixe-media-player/library.db` | The library, watch progress, playlists and TMDB answers |
-| `~/.local/share/nixe-media-player/state.json` | The queue, for resuming |
-| `~/.cache/nixe-media-player/art/` | Posters and frames, scaled |
-| `~/.cache/nixe-media-player/scrub/` | Seek bar previews |
+| `~/.config/nyx-media-player/settings.toml` | Preferences: library folders, playback, subtitles, TMDB, equalizer, theme |
+| `~/.config/nyx-media-player/themes/*.toml` | Your own themes |
+| `~/.local/share/nyx-media-player/library.db` | The library, watch progress, playlists and TMDB answers |
+| `~/.local/share/nyx-media-player/state.json` | The queue, for resuming |
+| `~/.cache/nyx-media-player/art/` | Posters and frames, scaled |
+| `~/.cache/nyx-media-player/scrub/` | Seek bar previews |
 
 This product uses the TMDB API but is not endorsed or certified by TMDB.

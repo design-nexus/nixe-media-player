@@ -2,7 +2,7 @@
   "application": "media-player",
   "directory": "media-player",
   "packages": [
-    "nixe-media-player"
+    "nyx-media-player"
   ],
   "manifest": "Cargo.toml",
   "prepare": [],
@@ -13,9 +13,9 @@
       "test",
       "--locked",
       "-p",
-      "nixe-media-player",
+      "nyx-media-player",
       "--bin",
-      "nixe-media-player"
+      "nyx-media-player"
     ]
   ]
 }
