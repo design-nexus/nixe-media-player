@@ -12,12 +12,14 @@ use std::rc::Rc;
 
 const CARD: i32 = 240;
 
-/// The banner at the top: the video you were last watching, over its backdrop.
+/// The banner at the top: the video you were last watching, over its backdrop,
+/// filling most of the first screen with its text in the left half.
 struct Hero {
     root: gtk::Overlay,
     picture: gtk::Picture,
     title: gtk::Label,
     detail: gtk::Label,
+    plot: gtk::Label,
     progress: gtk::ProgressBar,
     video: Rc<std::cell::RefCell<Option<Rc<Video>>>>,
 }
@@ -38,35 +40,69 @@ impl Hero {
         scrim.add_css_class("detail-scrim");
         scrim.set_can_target(false);
         root.add_overlay(&scrim);
-        let text = widgets::vbox(6);
+        let text = widgets::vbox(8);
         text.add_css_class("home-hero-text");
         text.set_valign(gtk::Align::End);
-        text.append(&widgets::label("PICK UP WHERE YOU LEFT OFF", "group-title"));
-        let title = widgets::label("", "detail-title");
+        let kicker = widgets::label("CONTINUE WATCHING", "hero-kicker");
+        kicker.set_xalign(0.0);
+        text.append(&kicker);
+        let title = widgets::label("", "hero-title");
+        title.set_xalign(0.0);
+        title.set_wrap(true);
+        title.set_lines(2);
         title.set_ellipsize(gtk::pango::EllipsizeMode::End);
+        title.set_max_width_chars(1);
         text.append(&title);
-        let detail = widgets::label("", "dim");
+        let detail = widgets::label("", "hero-meta");
+        detail.set_xalign(0.0);
         text.append(&detail);
-        let progress = gtk::ProgressBar::new();
-        progress.add_css_class("hero-progress");
-        progress.set_size_request(260, -1);
-        progress.set_halign(gtk::Align::Start);
-        text.append(&progress);
+        let plot = widgets::label("", "hero-plot");
+        plot.set_xalign(0.0);
+        plot.set_wrap(true);
+        plot.set_lines(3);
+        plot.set_ellipsize(gtk::pango::EllipsizeMode::End);
+        plot.set_max_width_chars(1);
+        text.append(&plot);
         let video: Rc<std::cell::RefCell<Option<Rc<Video>>>> = Rc::default();
+        // Resume, Details and how far along it is.
+        let actions = widgets::hbox(8);
+        actions.set_margin_top(6);
         let play = widgets::labeled_button("media-playback-start-symbolic", "Resume");
         play.add_css_class("suggested-action");
-        play.set_halign(gtk::Align::Start);
-        play.set_margin_top(6);
         let v = video.clone();
         play.connect_clicked(move |_| {
             if let Some(v) = v.borrow().clone() {
                 views::play_video(&v);
             }
         });
-        text.append(&play);
-        root.add_overlay(&text);
-        root.set_measure_overlay(&text, true);
-        Hero { root, picture, title, detail, progress, video }
+        actions.append(&play);
+        let details = nyx_ui::widgets::bar_button("help-about-symbolic", "Details");
+        details.add_css_class("hero-icon");
+        let v = video.clone();
+        details.connect_clicked(move |_| {
+            if let Some(v) = v.borrow().clone() {
+                match v.kind {
+                    Kind::Episode => crate::window::navigate(&format!("tv:{}", v.show)),
+                    _ => crate::window::navigate(&format!("movie:{}", v.path.display())),
+                }
+            }
+        });
+        actions.append(&details);
+        let progress = gtk::ProgressBar::new();
+        progress.add_css_class("hero-progress");
+        progress.set_size_request(180, -1);
+        progress.set_valign(gtk::Align::Center);
+        progress.set_margin_start(8);
+        actions.append(&progress);
+        text.append(&actions);
+        // The text keeps to the left half; the right half is picture.
+        let halves = widgets::hbox(0);
+        halves.set_homogeneous(true);
+        halves.append(&text);
+        halves.append(&widgets::hbox(0));
+        root.add_overlay(&halves);
+        root.set_measure_overlay(&halves, true);
+        Hero { root, picture, title, detail, plot, progress, video }
     }
 
     fn set(&self, v: Option<&Rc<Video>>) {
@@ -80,6 +116,12 @@ impl Hero {
         };
         self.title.set_text(&title);
         self.detail.set_text(&detail);
+        let plot = match v.kind {
+            Kind::Episode if v.plot.is_empty() => store::show_of(v).map(|s| s.plot.clone()).unwrap_or_default(),
+            _ => v.plot.clone(),
+        };
+        self.plot.set_visible(!plot.is_empty());
+        self.plot.set_text(&plot);
         self.progress.set_fraction(v.progress());
         // The show's or movie's backdrop, else a frame from the video.
         let backdrop = match v.kind {

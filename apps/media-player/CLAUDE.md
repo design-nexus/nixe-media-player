@@ -3,12 +3,19 @@
 - The command, crate, config/data/cache folders and MPRIS name are all `nyx-media-player`.
 
 - GTK4 (gtk4-rs 0.11) + Rust + libmpv (hand-written FFI, `player/mpv.rs`, links
-  `libmpv.so.2`). No libadwaita. The window is one flat, monospace surface split by
-  hairlines (see `STYLE.md`): the sidebar (its head holds the toggle and search), the
-  page, the player bar and a status bar (`F1 Shortcuts` · library size, equalizer,
-  settings); fullscreen hides all of it. Pages have no title header. Settings is a
-  card over the window (`settings_dialog.rs`) listing the settings page's groups;
-  `navigate("settings")` opens it. The equalizer is a card too (`panel_dialog.rs`), from the status bar or `navigate("equalizer")`. Queue, playlists and MPRIS started as
+  `libmpv.so.2`). No libadwaita. The window is Nyx 2.0's one blended surface (see
+  `STYLE.md`): the `nyx_ui::chrome::app_header` (the app and the page, the sidebar
+  toggle, search, open address/files, equalizer, settings), the sidebar (the library,
+  then Playlists with Queue and its +, the library's size at its foot; Now playing is
+  reached from the player bar), the page with a page head, and the player bar as a card.
+  No status bar; fullscreen hides the header, sidebar and bar. Home's hero fills most of
+  the first screen with its text in the left half. All videos switches between the
+  table and a Folders view (`folders::Browser`: breadcrumb, folder rows, the folder's
+  videos; `--section folders` opens it; `NMP_FOLDER=<path>` starts it there for checks).
+  The player controls over the picture (shared `nyx-playback`) sit on gradients.
+  Settings is a card over the window (`settings_dialog.rs`) listing the settings page's
+  groups; `navigate("settings")` opens it. The equalizer is a card too
+  (`panel_dialog.rs`), from the header or `navigate("equalizer")`. Queue, playlists and MPRIS started as
   copies of Music (`apps/music`); the theme, widgets and window frame come from the
   `nyx-*` crates. Every colour is a `@theme_*` token; `@theme_video` (derived
   in `theme::palette_css`) is the dark surround of the picture.

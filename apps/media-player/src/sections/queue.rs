@@ -32,7 +32,7 @@ pub fn build(page: &Page) {
     summary.set_hexpand(true);
     summary.set_ellipsize(gtk::pango::EllipsizeMode::End);
     toolbar.append(&summary);
-    let save = widgets::labeled_button("nmp-playlist-symbolic", "Save as playlist");
+    let save = nyx_ui::widgets::bar_button("nmp-playlist-symbolic", "Save as playlist");
     save.connect_clicked(|_| {
         let (items, _) = player::queue_items();
         if !items.is_empty() {

@@ -214,7 +214,9 @@ pub fn wide_card(v: &Rc<Video>, width: i32, subtitle: &str) -> gtk::Button {
 pub fn card_row(title: &str) -> (gtk::Box, gtk::Box) {
     let group = widgets::vbox(8);
     group.add_css_class("card-row");
-    group.append(&widgets::label(&title.to_uppercase(), "group-title"));
+    let heading = widgets::label(title, "shelf-title");
+    heading.set_xalign(0.0);
+    group.append(&heading);
     let cards = widgets::hbox(14);
     let scroll = gtk::ScrolledWindow::builder()
         .hscrollbar_policy(gtk::PolicyType::External)
@@ -337,9 +339,19 @@ pub fn back_button(label: &str, on_back: impl Fn() + 'static) -> gtk::Button {
 
 /// Play · Shuffle · Add to queue, for a list of videos.
 pub fn play_buttons(paths: impl Fn() -> Vec<PathBuf> + 'static) -> gtk::Box {
+    play_actions(paths, |icon, label, _| widgets::labeled_button(icon, label))
+}
+
+/// The same three as icons (Play in the accent), for a compact row such as a
+/// folder's in All videos.
+pub fn play_icons(paths: impl Fn() -> Vec<PathBuf> + 'static) -> gtk::Box {
+    play_actions(paths, |icon, _, tip| nyx_ui::widgets::bar_button(icon, tip))
+}
+
+fn play_actions(paths: impl Fn() -> Vec<PathBuf> + 'static, make: impl Fn(&str, &str, &str) -> gtk::Button) -> gtk::Box {
     let row = widgets::hbox(8);
     let paths = Rc::new(paths);
-    let play = widgets::labeled_button("media-playback-start-symbolic", "Play");
+    let play = make("media-playback-start-symbolic", "Play", "Play these");
     play.add_css_class("suggested-action");
     let p = paths.clone();
     play.connect_clicked(move |_| {
@@ -347,13 +359,13 @@ pub fn play_buttons(paths: impl Fn() -> Vec<PathBuf> + 'static) -> gtk::Box {
         player::play_paths(p(), 0);
         crate::window::navigate("now-playing");
     });
-    let shuffle = widgets::labeled_button("media-playlist-shuffle-symbolic", "Shuffle");
+    let shuffle = make("media-playlist-shuffle-symbolic", "Shuffle", "Shuffle these");
     let p = paths.clone();
     shuffle.connect_clicked(move |_| {
         player::shuffle_paths(p());
         crate::window::navigate("now-playing");
     });
-    let queue = widgets::labeled_button("list-add-symbolic", "Add to queue");
+    let queue = make("list-add-symbolic", "Add to queue", "Add these to the queue");
     let p = paths.clone();
     queue.connect_clicked(move |_| {
         let paths = p();

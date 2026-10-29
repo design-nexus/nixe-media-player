@@ -73,24 +73,20 @@ window.media-window list.table-card > row:selected {
   box-shadow: none;
 }
 
+/* Segments: the shared 2.0 look (a field track, the chosen one raised), a little
+   tighter so a page head's switches fit beside its title. */
+.segmented {
+  padding: 2px;
+}
+
 window.media-window .segmented button.segment {
-  min-height: 28px;
-  padding: 0 12px;
+  min-height: 26px;
+  padding: 0 10px;
   border: none;
-  border-radius: 5px;
-  background: transparent;
-  color: alpha(@theme_text, 0.78);
-  font-weight: 600;
-  box-shadow: none;
+  font-size: 12.5px;
 }
 
 window.media-window .segmented button.segment:hover {
-  background: @row_hover;
-  color: @theme_text;
-}
-
-window.media-window .segmented button.segment:checked {
-  background: @nav_active;
   color: @theme_text;
 }
 
@@ -548,4 +544,292 @@ window.media-window button.dialog-nav.active image {
 
 .settings-dialog-main .settings-page.narrow {
   padding: 20px 20px 28px;
+}
+
+/* ---------- Nyx 2.0 ---------- */
+/* One surface: the header, sidebar and pages share the window's background. */
+.media-window .settings-navigation,
+.media-window .settings-content {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* The sidebar's foot: the library's size, quiet. */
+.settings-navigation .nav-foot {
+  padding: 6px 10px 2px;
+  font-size: 11.5px;
+  color: @theme_text_tertiary;
+  font-feature-settings: "tnum";
+}
+
+window.media-window .settings-navigation button.nav-group-add {
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  margin-right: 6px;
+  color: @theme_dim_text;
+}
+
+/* A page's head: its name in 600, how many beside it, its switches at the right;
+   no line under it. */
+.toolbar {
+  border-bottom: none;
+}
+
+.toolbar.page-head {
+  padding: 0 18px 0 8px;
+}
+
+.page-head-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.page-head-count {
+  font-size: 12px;
+  color: @theme_dim_text;
+  font-feature-settings: "tnum";
+}
+
+/* All videos by folder: a breadcrumb, a row per folder, then the videos in it. */
+.folder-crumbs {
+  padding: 2px 18px 8px 4px;
+}
+
+window.media-window button.folder-crumb {
+  min-height: 26px;
+  padding: 0 6px;
+  color: @theme_dim_text;
+  font-size: 13px;
+}
+
+window.media-window button.folder-crumb:hover {
+  color: @theme_text;
+}
+
+.folder-crumb-here {
+  padding: 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.folder-crumb-sep {
+  -gtk-icon-size: 12px;
+  color: @theme_text_tertiary;
+}
+
+.folder-list {
+  padding: 0 18px 8px 8px;
+}
+
+window.media-window button.folder-entry {
+  min-height: 52px;
+  padding: 0 10px;
+  border-radius: 9px;
+  background: transparent;
+}
+
+window.media-window button.folder-entry:hover {
+  background: @row_hover;
+}
+
+.folder-icon {
+  min-width: 34px;
+  min-height: 34px;
+  border-radius: 8px;
+  background: alpha(@theme_accent, 0.14);
+  color: @theme_accent;
+}
+
+.folder-name {
+  font-weight: 500;
+  color: @theme_text;
+}
+
+.folder-sub {
+  font-size: 12px;
+  color: @theme_dim_text;
+  font-feature-settings: "tnum";
+}
+
+.folder-chevron {
+  -gtk-icon-size: 14px;
+  color: @theme_text_tertiary;
+}
+
+.folder-here {
+  padding: 10px 18px 6px 18px;
+}
+
+.folder-here-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: @theme_text_tertiary;
+}
+
+/* Numbers (lengths, years, dates, counts) are the app font with even-width digits. */
+window.media-window label.mono {
+  font-family: inherit;
+  font-feature-settings: "tnum";
+}
+
+/* Play as an icon, in the accent (a folder's row of actions). */
+window.media-window .folder-here button.suggested-action {
+  background: transparent;
+  color: @theme_accent;
+}
+
+window.media-window .folder-here button.suggested-action:hover {
+  background: alpha(@theme_accent, 0.14);
+}
+
+/* Pages start level with the sidebar's first row and sit close beside it. */
+.media-window .settings-content .settings-page {
+  padding: 0 18px 28px 8px;
+}
+
+.media-window .settings-content .settings-page.narrow {
+  padding: 0 14px 24px 8px;
+}
+
+/* Home's hero: a big backdrop filling most of the first screen (like Music's Now
+   playing), shaded from the left so the text in its left half reads, with Resume
+   in the accent and Details as an icon. */
+.home-hero {
+  min-height: 430px;
+  border: none;
+  border-radius: 14px;
+  box-shadow: none;
+  background: @theme_video;
+}
+
+.narrow .home-hero {
+  min-height: 340px;
+}
+
+.home-hero .detail-scrim {
+  background-image: linear-gradient(to right, alpha(@theme_video, 0.88) 0%, alpha(@theme_video, 0.5) 45%, alpha(@theme_video, 0) 75%),
+                    linear-gradient(to top, alpha(@theme_video, 0.6) 0%, alpha(@theme_video, 0) 55%);
+}
+
+.home-hero-text {
+  padding: 26px 28px;
+}
+
+.hero-kicker {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: alpha(@theme_on_video, 0.78);
+}
+
+.home-hero .hero-title {
+  font-size: 30px;
+  font-weight: 600;
+  color: @theme_on_video;
+}
+
+.home-hero .hero-meta {
+  font-size: 12.5px;
+  color: alpha(@theme_on_video, 0.8);
+  font-feature-settings: "tnum";
+}
+
+.home-hero .hero-plot {
+  font-size: 13px;
+  color: alpha(@theme_on_video, 0.86);
+}
+
+window.media-window .home-hero button.suggested-action {
+  min-height: 32px;
+  border-radius: 8px;
+  background: @theme_accent;
+  color: @theme_on_accent;
+}
+
+window.media-window .home-hero button.hero-icon {
+  border-radius: 8px;
+  background: alpha(@theme_on_video, 0.14);
+  color: @theme_on_video;
+}
+
+window.media-window .home-hero button.hero-icon:hover {
+  background: alpha(@theme_on_video, 0.22);
+}
+
+.home-hero progressbar.hero-progress > trough {
+  min-height: 3px;
+  background: alpha(@theme_on_video, 0.25);
+}
+
+.home-hero progressbar.hero-progress > trough > progress {
+  min-height: 3px;
+  background: @theme_on_video;
+}
+
+/* A shelf's name: sentence case, 600. */
+.shelf-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Playing: the picture in a rounded frame, inset like the other pages; full screen
+   takes the whole window. */
+.media-window .player-stage {
+  margin: 0 18px 14px 8px;
+  border-radius: 14px;
+  background: @theme_video;
+}
+
+.media-window .settings-page.narrow .player-stage {
+  margin: 0 14px 12px 8px;
+}
+
+window.fullscreen .player-stage {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* The player bar: a soft card under the pages with a light round Play, as in Music. */
+.player-bar {
+  background: @theme_card;
+  border-top: none;
+  border-radius: 12px;
+  margin: 0 18px 14px 8px;
+  padding: 10px 14px;
+}
+
+.player-title {
+  font-weight: 500;
+}
+
+window.media-window .player-bar button.play-button {
+  min-width: 36px;
+  min-height: 36px;
+  background: @theme_text;
+  color: @theme_bg;
+}
+
+window.media-window .player-bar button.play-button:hover {
+  background: mix(@theme_text, @theme_bg, 0.12);
+}
+
+window.media-window .player-bar scale > trough {
+  min-height: 4px;
+  border-radius: 2px;
+  background: @track;
+}
+
+window.media-window .player-bar scale.seek > trough > highlight {
+  min-height: 4px;
+  border-radius: 2px;
+  background: @theme_accent;
+}
+
+window.media-window .player-bar scale.volume > trough > highlight {
+  min-height: 4px;
+  border-radius: 2px;
+  background: @theme_dim_text;
 }

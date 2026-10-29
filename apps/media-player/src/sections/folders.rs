@@ -1,13 +1,12 @@
-//! Folders: the library as it's laid out on disk. A folder opens into all the
-//! videos under it, in path order.
+//! Folders: the library as it's laid out on disk, browsed from All videos (its
+//! Folders view): a folder shows its folders and the videos directly in it.
 
-use super::{library_stack, scan_banner};
 use crate::library::{Video, store};
 use crate::videotable::{Col, Options, VideoTable};
-use crate::widgets::{self, Page};
+use crate::widgets;
 use crate::{fmt, paths, views};
 use gtk::prelude::*;
-use gtk::{gio, glib};
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
@@ -52,147 +51,200 @@ pub fn tree(roots: &[PathBuf], videos: &[Rc<Video>]) -> Vec<Rc<Node>> {
     roots.iter().map(|r| Rc::new(build(r, paths::pretty(r), &counts))).filter(|n| n.count > 0).collect()
 }
 
-fn node_of(obj: &glib::Object) -> Option<Rc<Node>> {
-    let obj = obj.downcast_ref::<gtk::TreeListRow>().and_then(|r| r.item()).unwrap_or_else(|| obj.clone());
-    obj.downcast_ref::<glib::BoxedAnyObject>().map(|b| b.borrow::<Rc<Node>>().clone())
+/// The folders view of All videos: a breadcrumb, the folders here as rows, and
+/// the videos directly in this folder with Play and Shuffle. It starts at the
+/// library's folders.
+pub struct Browser {
+    pub root: gtk::Box,
+    crumbs: gtk::Box,
+    rows: gtk::Box,
+    rows_scroll: gtk::ScrolledWindow,
+    here: gtk::Box,
+    table: VideoTable,
+    /// The folder shown; `None` is the library's folders.
+    current: RefCell<Option<PathBuf>>,
+    /// The videos directly in it, for Play and Shuffle.
+    open: Rc<RefCell<Vec<PathBuf>>>,
 }
 
-fn model_for(nodes: &[Rc<Node>]) -> gio::ListStore {
-    let store = gio::ListStore::new::<glib::BoxedAnyObject>();
-    for n in nodes {
-        store.append(&glib::BoxedAnyObject::new(n.clone()));
+impl Browser {
+    pub fn new() -> Rc<Browser> {
+        let root = widgets::vbox(0);
+        root.set_vexpand(true);
+        let crumbs = widgets::hbox(2);
+        crumbs.add_css_class("folder-crumbs");
+        let rows = widgets::vbox(2);
+        rows.add_css_class("folder-list");
+        let rows_scroll = gtk::ScrolledWindow::builder()
+            .hscrollbar_policy(gtk::PolicyType::Never)
+            .vscrollbar_policy(gtk::PolicyType::External)
+            .propagate_natural_height(true)
+            .max_content_height(340)
+            .child(&rows)
+            .build();
+        let here = widgets::hbox(10);
+        here.add_css_class("folder-here");
+        let here_title = widgets::label("In this folder", "folder-here-title");
+        here_title.set_hexpand(true);
+        here_title.set_xalign(0.0);
+        here.append(&here_title);
+        let open: Rc<RefCell<Vec<PathBuf>>> = Rc::default();
+        let o = open.clone();
+        let actions = views::play_icons(move || o.borrow().clone());
+        actions.set_spacing(2);
+        here.append(&actions);
+        let table = VideoTable::new(Options {
+            cols: &[Col::Indicator, Col::Title, Col::Time, Col::Status],
+            sortable: false,
+            positions: true,
+            ..Default::default()
+        });
+        root.append(&crumbs);
+        root.append(&rows_scroll);
+        root.append(&here);
+        root.append(&table.root);
+        // Developer aid, like NMP_SNAPSHOT: NMP_FOLDER=<path> opens the view at that folder.
+        let start = std::env::var_os("NMP_FOLDER").map(PathBuf::from);
+        let b = Rc::new(Browser { root, crumbs, rows, rows_scroll, here, table, current: RefCell::new(start), open });
+        let weak = Rc::downgrade(&b);
+        store::subscribe(&b.root, move |c| {
+            if c == store::Change::Library
+                && let Some(b) = weak.upgrade()
+            {
+                b.show();
+            }
+        });
+        b.show();
+        b
     }
-    store
+
+    fn go(self: &Rc<Self>, dir: Option<PathBuf>) {
+        *self.current.borrow_mut() = dir;
+        self.show();
+    }
+
+    /// Draw the folder being shown.
+    pub fn show(self: &Rc<Self>) {
+        let videos = store::videos();
+        let mut nodes = tree(&store::roots(), &videos);
+        // With one library folder the top is that folder's contents, not a lone row.
+        let single = (nodes.len() == 1).then(|| nodes[0].clone());
+        if let Some(only) = &single {
+            nodes = only.children.clone();
+        }
+        let current = self.current.borrow().clone();
+        let chain = current.as_deref().map(|dir| chain_to(&nodes, dir)).unwrap_or_default();
+        // Gone after a rescan: back to the top (not while the library is still loading).
+        if current.is_some() && chain.is_empty() && store::loaded() {
+            *self.current.borrow_mut() = None;
+            return self.show();
+        }
+        // The breadcrumb: All folders, then each folder down to this one.
+        clear(&self.crumbs);
+        let crumb = |text: &str, target: Option<PathBuf>, last: bool| -> gtk::Widget {
+            if last {
+                return widgets::label(text, "folder-crumb-here").upcast();
+            }
+            let b = gtk::Button::with_label(text);
+            b.add_css_class("flat");
+            b.add_css_class("folder-crumb");
+            let me = self.clone();
+            b.connect_clicked(move |_| me.go(target.clone()));
+            b.upcast()
+        };
+        self.crumbs.append(&crumb("All folders", None, chain.is_empty()));
+        for (i, node) in chain.iter().enumerate() {
+            let sep = gtk::Image::from_icon_name("go-next-symbolic");
+            sep.add_css_class("folder-crumb-sep");
+            self.crumbs.append(&sep);
+            self.crumbs.append(&crumb(&node.name, Some(node.path.clone()), i + 1 == chain.len()));
+        }
+        // The folders here: the library's folders at the top, else this one's.
+        clear(&self.rows);
+        let children = chain.last().map(|n| n.children.clone()).unwrap_or(nodes);
+        self.rows_scroll.set_visible(!children.is_empty());
+        for node in children {
+            let secs: f64 = videos.iter().filter(|v| v.path.starts_with(&node.path)).map(|v| v.duration).sum();
+            self.rows.append(&self.folder_row(&node, secs));
+        }
+        // The videos directly in this folder (at the top: in the one library folder).
+        let dir = current.clone().or_else(|| single.map(|n| n.path.clone()));
+        let mut here: Vec<Rc<Video>> = match &dir {
+            Some(dir) => videos.iter().filter(|v| v.path.parent() == Some(dir.as_path())).cloned().collect(),
+            None => Vec::new(),
+        };
+        here.sort_by(|a, b| a.path.cmp(&b.path));
+        *self.open.borrow_mut() = here.iter().map(|v| v.path.clone()).collect();
+        self.here.set_visible(!here.is_empty());
+        self.table.root.set_visible(!here.is_empty());
+        self.table.set(&here);
+    }
+
+    fn folder_row(self: &Rc<Self>, node: &Rc<Node>, secs: f64) -> gtk::Button {
+        let button = gtk::Button::new();
+        button.add_css_class("flat");
+        button.add_css_class("folder-entry");
+        let line = widgets::hbox(12);
+        // A square tile in the accent's tint with the folder glyph in its middle.
+        let icon = widgets::hbox(0);
+        icon.add_css_class("folder-icon");
+        icon.set_size_request(34, 34);
+        icon.set_hexpand(false);
+        icon.set_valign(gtk::Align::Center);
+        let image = gtk::Image::from_icon_name("folder-symbolic");
+        image.set_halign(gtk::Align::Center);
+        image.set_valign(gtk::Align::Center);
+        image.set_hexpand(true);
+        icon.append(&image);
+        line.append(&icon);
+        let text = widgets::vbox(2);
+        text.set_hexpand(true);
+        text.set_valign(gtk::Align::Center);
+        let name = widgets::label(&node.name, "folder-name");
+        name.set_xalign(0.0);
+        name.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
+        text.append(&name);
+        let mut sub = fmt::count(node.count, "video", "videos");
+        if secs > 0.0 {
+            sub.push_str(" · ");
+            sub.push_str(&fmt::total(secs));
+        }
+        let sub = widgets::label(&sub, "folder-sub");
+        sub.set_xalign(0.0);
+        text.append(&sub);
+        line.append(&text);
+        let chevron = gtk::Image::from_icon_name("go-next-symbolic");
+        chevron.add_css_class("folder-chevron");
+        line.append(&chevron);
+        button.set_child(Some(&line));
+        button.set_tooltip_text(Some(&paths::pretty(&node.path)));
+        let (me, path) = (self.clone(), node.path.clone());
+        button.connect_clicked(move |_| me.go(Some(path.clone())));
+        button
+    }
 }
 
-pub fn build(page: &Page) {
-    page.body.append(&scan_banner());
-    let inner = gtk::Stack::new();
-    inner.set_transition_type(gtk::StackTransitionType::Crossfade);
-
-    let roots = model_for(&[]);
-    let tree_model = gtk::TreeListModel::new(roots.clone(), false, false, |obj| {
-        let node = node_of(obj)?;
-        if node.children.is_empty() { None } else { Some(model_for(&node.children).upcast()) }
-    });
-    let factory = gtk::SignalListItemFactory::new();
-    factory.connect_setup(|_, item| {
-        let item = item.downcast_ref::<gtk::ListItem>().expect("list item");
-        let expander = gtk::TreeExpander::new();
-        let row = widgets::hbox(10);
-        row.add_css_class("folder-row");
-        row.append(&gtk::Image::from_icon_name("folder-symbolic"));
-        let name = widgets::label("", "");
-        name.set_hexpand(true);
-        name.set_ellipsize(gtk::pango::EllipsizeMode::Middle);
-        let count = widgets::label("", "cell-dim");
-        count.add_css_class("mono");
-        row.append(&name);
-        row.append(&count);
-        expander.set_child(Some(&row));
-        item.set_child(Some(&expander));
-    });
-    factory.connect_bind(|_, item| {
-        let item = item.downcast_ref::<gtk::ListItem>().expect("list item");
-        let (Some(row), Some(expander)) =
-            (item.item().and_downcast::<gtk::TreeListRow>(), item.child().and_downcast::<gtk::TreeExpander>())
-        else {
-            return;
-        };
-        expander.set_list_row(Some(&row));
-        let Some(node) = row.item().and_then(|o| node_of(&o)) else { return };
-        if let Some(bx) = expander.child()
-            && let Some(name) = bx.first_child().and_then(|i| i.next_sibling()).and_downcast::<gtk::Label>()
-            && let Some(count) = name.next_sibling().and_downcast::<gtk::Label>()
-        {
-            name.set_text(&node.name);
-            name.set_tooltip_text(Some(&paths::pretty(&node.path)));
-            count.set_text(&fmt::thousands(node.count));
+/// The folders from a library root down to `dir`, or nothing when it isn't there.
+fn chain_to(nodes: &[Rc<Node>], dir: &Path) -> Vec<Rc<Node>> {
+    for n in nodes {
+        if n.path == dir {
+            return vec![n.clone()];
         }
-    });
-    let selection = gtk::SingleSelection::new(Some(tree_model.clone()));
-    selection.set_autoselect(false);
-    selection.set_can_unselect(true);
-    let list = gtk::ListView::new(Some(selection), Some(factory));
-    list.add_css_class("bucket-list");
-    let scroll = gtk::ScrolledWindow::builder()
-        .hscrollbar_policy(gtk::PolicyType::Never)
-        .vscrollbar_policy(gtk::PolicyType::External)
-        .child(&list)
-        .vexpand(true)
-        .build();
-    let card = widgets::vbox(0);
-    card.add_css_class("table-card");
-    card.set_overflow(gtk::Overflow::Hidden);
-    card.set_vexpand(true);
-    card.append(&scroll);
-    let browse = widgets::vbox(0);
-    browse.append(&widgets::label("Click a folder to see its videos; use the arrows to look inside.", "page-hint"));
-    browse.append(&card);
-    inner.add_named(&browse, Some("tree"));
-
-    // ----- Folder view -----
-    let detail = widgets::vbox(0);
-    detail.set_vexpand(true);
-    let i2 = inner.clone();
-    detail.append(&views::back_button("Folders", move || i2.set_visible_child_name("tree")));
-    let open: Rc<std::cell::RefCell<Vec<PathBuf>>> = Rc::default();
-    let o = open.clone();
-    let actions = views::play_buttons(move || o.borrow().clone());
-    let meta = widgets::label("", "dim");
-    meta.add_css_class("mono");
-    meta.add_css_class("detail-meta");
-    let header = widgets::vbox(6);
-    header.add_css_class("detail-header");
-    header.append(&widgets::label("FOLDER", "group-title"));
-    let title = widgets::label("", "detail-title");
-    title.set_wrap(true);
-    title.set_wrap_mode(gtk::pango::WrapMode::WordChar);
-    header.append(&title);
-    header.append(&meta);
-    actions.set_margin_top(8);
-    header.append(&actions);
-    detail.append(&header);
-    let table = VideoTable::new(Options {
-        cols: &[Col::Indicator, Col::Title, Col::Time, Col::Status],
-        sortable: false,
-        positions: true,
-        ..Default::default()
-    });
-    detail.append(&table.root);
-    inner.add_named(&detail, Some("detail"));
-
-    let (i2, t2) = (inner.clone(), table.clone());
-    list.set_single_click_activate(true);
-    list.connect_activate(move |_, pos| {
-        let Some(node) = tree_model.item(pos).and_then(|o| node_of(&o)) else { return };
-        let mut tracks: Vec<Rc<Video>> = store::videos().into_iter().filter(|t| t.path.starts_with(&node.path)).collect();
-        tracks.sort_by(|a, b| a.path.cmp(&b.path));
-        title.set_text(&node.name);
-        let secs: f64 = tracks.iter().map(|t| t.duration).sum();
-        meta.set_text(&format!(
-            "{} · {} · {}",
-            paths::pretty(&node.path),
-            fmt::count(tracks.len(), "video", "videos"),
-            fmt::total(secs)
-        ));
-        *open.borrow_mut() = tracks.iter().map(|t| t.path.clone()).collect();
-        t2.set(&tracks);
-        i2.set_visible_child_name("detail");
-    });
-    page.body.append(&library_stack(&inner, || true, widgets::vbox(0)));
-
-    let refresh = move || {
-        let nodes = tree(&store::roots(), &store::videos());
-        let objs: Vec<glib::BoxedAnyObject> = nodes.into_iter().map(glib::BoxedAnyObject::new).collect();
-        roots.splice(0, roots.n_items(), &objs);
-    };
-    refresh();
-    store::subscribe(&inner, move |c| {
-        if c == store::Change::Library {
-            refresh();
+        if dir.starts_with(&n.path) {
+            let mut rest = chain_to(&n.children, dir);
+            if !rest.is_empty() {
+                rest.insert(0, n.clone());
+                return rest;
+            }
         }
-    });
+    }
+    Vec::new()
+}
+
+fn clear(b: &gtk::Box) {
+    while let Some(c) = b.first_child() {
+        b.remove(&c);
+    }
 }
 
 #[cfg(test)]

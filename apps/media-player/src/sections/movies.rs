@@ -50,11 +50,14 @@ pub fn build(page: &Page) {
 
     // ----- Grid -----
     let browse = widgets::vbox(12);
+    // The page's head: its name and how many, then its filters and order.
     let toolbar = widgets::hbox(10);
     toolbar.add_css_class("toolbar");
-    let count = widgets::label("", "dim");
-    count.add_css_class("mono");
+    toolbar.add_css_class("page-head");
+    toolbar.append(&widgets::label("Movies", "page-head-title"));
+    let count = widgets::label("", "page-head-count");
     count.set_hexpand(true);
+    count.set_xalign(0.0);
     toolbar.append(&count);
     let grid = PosterGrid::new(|item| {
         if let Item::Video(v) = item {
@@ -67,9 +70,9 @@ pub fn build(page: &Page) {
             let all = store::movies();
             let shown = sorted(all.clone());
             count.set_text(&if shown.len() == all.len() {
-                fmt::count(all.len(), "movie", "movies")
+                fmt::thousands(all.len())
             } else {
-                format!("{} of {}", fmt::thousands(shown.len()), fmt::count(all.len(), "movie", "movies"))
+                format!("{} of {}", fmt::thousands(shown.len()), fmt::thousands(all.len()))
             });
             grid.set(shown.into_iter().map(Item::Video).collect());
         })

@@ -58,17 +58,10 @@ pub fn all() -> Vec<Section> {
             videos::build,
             true,
         ),
-        s(
-            "folders",
-            "Folders",
-            "folder-videos-symbolic",
-            "Library",
-            "Your videos as they're laid out on disk.",
-            folders::build,
-            true,
-        ),
+        // Opened from the player bar (and by playing anything), not listed in the sidebar.
         Section {
             bare: true,
+            nav: false,
             ..s(
                 "now-playing",
                 "Now playing",
@@ -79,7 +72,7 @@ pub fn all() -> Vec<Section> {
                 true,
             )
         },
-        s("queue", "Queue", "nmp-queue-symbolic", "Watch", "What's playing now and next.", queue::build, true),
+        s("queue", "Queue", "nmp-queue-symbolic", "Playlists", "What's playing now and next.", queue::build, true),
         // Opened from the top bar as a card over the window, not listed in the sidebar.
         Section {
             nav: false,

@@ -45,11 +45,14 @@ pub fn build(page: &Page) {
     inner.set_vexpand(true);
 
     let browse = widgets::vbox(12);
+    // The page's head: its name and how many, then its filters and order.
     let toolbar = widgets::hbox(10);
     toolbar.add_css_class("toolbar");
-    let count = widgets::label("", "dim");
-    count.add_css_class("mono");
+    toolbar.add_css_class("page-head");
+    toolbar.append(&widgets::label("TV shows", "page-head-title"));
+    let count = widgets::label("", "page-head-count");
     count.set_hexpand(true);
+    count.set_xalign(0.0);
     toolbar.append(&count);
     let grid = PosterGrid::new(|item| {
         if let Item::Show(s) = item {
@@ -62,7 +65,7 @@ pub fn build(page: &Page) {
             let all = store::shows();
             let shown = sorted(all.clone());
             let eps: usize = all.iter().map(|s| s.count()).sum();
-            count.set_text(&format!("{} · {}", fmt::count(all.len(), "show", "shows"), fmt::count(eps, "episode", "episodes")));
+            count.set_text(&format!("{} · {}", fmt::thousands(all.len()), fmt::count(eps, "episode", "episodes")));
             grid.set(shown.into_iter().map(Item::Show).collect());
         })
     };
