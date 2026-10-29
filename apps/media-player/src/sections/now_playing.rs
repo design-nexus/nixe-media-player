@@ -288,7 +288,6 @@ pub fn choose_subtitle_file() {
 }
 
 /// Seconds before the end when Up next appears (if there are no credits).
-const UP_NEXT_LEAD: f64 = 20.0;
 
 /// The card near the end of a video: what's next, a countdown, Play now
 /// and Cancel.
@@ -337,18 +336,13 @@ impl UpNext {
         UpNext { root, art, title, detail, when, showing: Rc::default() }
     }
 
-    /// When the credits start: a chapter named like "Credits" near the end.
-    fn credits_at() -> Option<f64> {
-        let d = player::duration();
-        player::chapters().iter().rev().find(|(t, name)| *t > d * 0.8 && name.to_lowercase().contains("credit")).map(|(t, _)| *t)
-    }
-
     fn update(&self) {
         let (d, pos) = (player::duration(), player::position());
         let left = (d - pos).max(0.0);
-        let due = d > 60.0
+        let lead = crate::prefs::get().up_next_seconds.min(30);
+        let due = lead > 0 && d > 60.0
             && player::state() == State::Playing
-            && (left <= UP_NEXT_LEAD || Self::credits_at().is_some_and(|c| pos >= c));
+            && left <= lead as f64;
         let next = if due { player::up_next() } else { None };
         let Some(next) = next else {
             self.root.set_visible(false);

@@ -39,6 +39,7 @@ pub struct Prefs {
     pub restore_queue: bool,
     /// Play a show's next episode when one ends.
     pub autoplay_next: bool,
+    pub up_next_seconds: u32,
     /// Seconds for ←/→ and Shift+←/→.
     pub skip_short: f64,
     pub skip_long: f64,
@@ -100,6 +101,7 @@ impl Default for Prefs {
             resume: true,
             restore_queue: true,
             autoplay_next: true,
+            up_next_seconds: 20,
             skip_short: 5.0,
             skip_long: 30.0,
             swipe_reverse: false,
